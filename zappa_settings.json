@@ -1,0 +1,27 @@
+{
+    "prod": {
+        "app_function": "map-api.api.app",
+        "aws_region": "eu-central-1",
+        "profile_name": "ER",
+        "project_name": "er-map-server",
+        "runtime": "python3.7",
+        "s3_bucket": "er-map-server-builds",
+        "domain": "<domain>",
+        "log_level": "INFO",
+        "certificate_arn": "<cert arn>",
+        "timeout_seconds": 300,
+        "manage_roles": false,
+        "role_name": "<aws role>",
+        "role_arn": "<aws role arn>",
+        "events": [
+            {"function":  "run_downloader.main", "expression":  "rate(1 hour)"}
+        ],
+        "environment_variables": {
+            "LOGIN_TOKEN": "<token>",
+            "ER_TOKEN": "<token>",
+            "SERVER_URL": "<this server url>",
+            "ER_HOST": "<er server url>",
+            "SUBJECTS_BUCKET": "<s3 bucket name for caching tracks>"
+        }
+    }
+}
