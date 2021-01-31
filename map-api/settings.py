@@ -1,8 +1,23 @@
-import os
+import json
+from os import environ
 
-SUBJECTS_BUCKET = os.getenv('SUBJECTS_BUCKET', 'bucket')
-AWS_REGION = os.getenv('AWS_REGION', 'eu-central-1')
-ER_TOKEN = os.getenv('ER_TOKEN')
-ER_HOST = os.getenv('ER_HOST')
-SERVER_URL = os.getenv('SERVER_URL', 'http://localhost')
-LOGIN_TOKEN = os.getenv('LOGIN_TOKEN')
+
+SERVER_TYPE = environ.get('SERVERTYPE')
+FRAMEWORK = environ.get('FRAMEWORK')
+
+
+if SERVER_TYPE and FRAMEWORK and FRAMEWORK == 'Zappa':
+    pass
+else:
+    with open('zappa_settings.json') as f:
+        environment = json.load(f)['local']['environment_variables']
+    for k,v in environment.items():
+        environ[k] = str(v)
+
+SUBJECTS_BUCKET = environ.get('SUBJECTS_BUCKET')
+AWS_REGION = environ.get('AWS_REGION')
+ER_TOKEN = environ.get('ER_TOKEN')
+ER_HOST = environ.get('ER_HOST')
+SERVER_URL = environ.get('SERVER_URL', 'http://localhost')
+LOGIN_TOKEN = environ.get('LOGIN_TOKEN')
+SUBJECTS_FOLDER = environ.get("SUBJECTS_FOLDER")

@@ -18,13 +18,37 @@ The primary settings are configured the the following environment variables
 ### Server certificate
 Follow the instructions in Zappa docs on settting up AWS certificate. The certificate arn is recorded in the zappa_settings.json. Also the "zappa certify" command installs the certificate.
 
-## Setup for deployment
+## Setup for development
 1. create a virtual environment on the deployment machine. From the root of this project execute the following commands
 ~~~~
 python3.7 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ~~~~
+2. Add/Update a "dev_local" section of the zappa_settings.json file
+~~~
+"local": {
+        "environment_variables": {
+            "LOGIN_TOKEN": "",
+            "ER_TOKEN": "<token>",
+            "ER_HOST": "<er server url>",
+            "SERVER_URL": "http://localhost:5000",
+            "SUBJECTS_FOLDER": "<local foldername to cache subject data>"
+
+        }
+    }
+~~~
+3. run the downloader the first time to get data from your ER server
+~~~~
+python map-api/run_downloader
+~~~~
+4. Finally launch the API server
+~~~
+python map-api/api.py
+~~~
+
+## Setup for deployment
+1. Same as in setup for development, create virtual environment and install requirements
 2. Make a copy of zappa config file, zappa_settings.config so that we can add the site specific tokens and secrets. Do no check this into source control.
 3. Rename the "prod" config to something identifiable in AWS Lambda. Prefer the sitename.
 4. Update the config inserting secrets and tokens for the site

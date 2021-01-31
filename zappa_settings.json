@@ -19,8 +19,8 @@
         "environment_variables": {
             "LOGIN_TOKEN": "<token>",
             "ER_TOKEN": "<token>",
-            "SERVER_URL": "<this server url>",
             "ER_HOST": "<er server url>",
+            "SERVER_URL": "<this server url>",
             "SUBJECTS_BUCKET": "<s3 bucket name for caching tracks>"
         }
     }

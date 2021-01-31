@@ -3,17 +3,19 @@ import pathlib
 import tempfile
 import logging
 
+from flask import Flask, jsonify, send_file, redirect
+import settings
+import storage
+from authentication import login_required, login_implementation
+
+if not (settings.FRAMEWORK and settings.FRAMEWORK == 'Zappa'):
+    logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 parent_path = pathlib.Path(__file__).parent
 logger.info(f'api.py parent path {parent_path}')
 sys.path.append('/var/task/map-api/')
 sys.path.append(parent_path)
 
-from flask import Flask, jsonify, send_file, redirect
-
-import settings
-import storage
-from authentication import login_required, login_implementation
 
 app = Flask(__name__)
 
@@ -41,7 +43,7 @@ def handle_error(error):
 
     return jsonify(response), code
 
-subject_storage = storage.EAPStorage(settings.SUBJECTS_BUCKET, settings.AWS_REGION)
+subject_storage = storage.get_storage(settings)
 
 
 @app.route('/', methods=['GET'])

@@ -8,8 +8,9 @@ from werkzeug.exceptions import Unauthorized, BadRequest
 import settings
 import storage
 
+
 logger = logging.getLogger(__name__)
-credential_storage = storage.EAPStorage(settings.SUBJECTS_BUCKET, settings.AWS_REGION)
+
 
 def login_required(f):
     @wraps(f)
@@ -19,6 +20,9 @@ def login_required(f):
             token = authorization[len('Bearer '):]
             if token == settings.LOGIN_TOKEN:
                 return f(*args, **kwargs)
+        if not settings.LOGIN_TOKEN:
+            return f(*args, **kwargs)
+            
         raise Unauthorized()
     return decorated_function
 

@@ -2,6 +2,7 @@ import logging
 import json
 import tempfile
 import mimetypes
+from pathlib import Path
 
 import boto3
 
@@ -9,7 +10,69 @@ import boto3
 logger = logging.getLogger(__name__)
 
 
-class EAPStorage:
+def get_storage(settings):
+    if getattr(settings, "SUBJECTS_BUCKET", None):
+        return S3Storage(getattr(settings, "SUBJECTS_BUCKET"), getattr(settings, "AWS_REGION"))
+    elif getattr(settings, "SUBJECTS_FOLDER", None):
+        return LocalStorage(getattr(settings, "SUBJECTS_FOLDER"))
+    raise NotImplementedError("No storage type found")
+
+
+class LocalStorage:
+    def __init__(self, root_folder):
+        self.root_folder = Path(root_folder)
+        self.subjects_dir = self.root_folder / 'subjects'
+        self.static_dir = self.root_folder / 'static'
+
+        self.subjects_dir.mkdir(parents=True, exist_ok=True)
+        self.static_dir.mkdir(parents=True, exist_ok=True)
+
+    def save_obj_to_file(self, path, obj):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, 'w+b') as fh:
+            s_obj = json.dumps(obj)
+            fh.write(s_obj.encode('utf-8'))
+
+    def get_obj_from_file(path, fh):
+        with open(path, "rb") as source_fh:
+            fh.write(source_fh.read())
+
+    """
+    PUBLIC INTERFACE
+    """
+    def get_subjects(self):
+        path = self.subjects_dir / "subjects.json"
+        with open(path,  "rb") as fh:
+            return json.loads(fh.read().decode())
+
+    def get_subject(self, subject_id):
+        path = self.subjects_dir / subject_id / "tracks.json"
+        with open(path,  "rb") as fh:
+            return json.loads(fh.read().decode())
+
+    def save_subjects(self, subjects):
+        path = self.subjects_dir / "subjects.json"
+        self.save_obj_to_file(path, subjects)
+
+    def save_subject_track(self, subject, track):
+        path = self.subjects_dir / subject["id"] / "tracks.json"
+        self.save_obj_to_file(path, track)
+
+    def get_static_image(self, fh, image_name, folder=None):
+        if not folder:
+            folder = self.static_dir
+        mimetype = mimetypes.guess_type(image_name)[0]
+
+        path = folder / image_name
+
+        # here we need to load the image file into the fh
+        self.get_obj_from_file(path, fh)
+        return mimetype
+
+    def get_static_image_redirect(self, image_name, folder=None):
+        raise NotImplementedError()
+
+class S3Storage:
     def __init__(self, bucket, region):
         self.bucket_name = bucket
         self.subjects_dir = 'subjects'
@@ -36,6 +99,9 @@ class EAPStorage:
             fh.seek(0)
             self.upload_file(fh, path)
 
+    """
+    PUBLIC INTERFACE
+    """
     def get_subjects(self):
         path = f'{self.subjects_dir}/subjects.json'
         with tempfile.TemporaryFile('w+b') as fh:
@@ -76,11 +142,4 @@ class EAPStorage:
              Params = {'Bucket': self.bucket_name, 'Key': path},
                     ExpiresIn = 100)
         return url
-
-    def get_user_credentials(self, username):
-        path = f'{self.users_dir}/{username}'
-        with tempfile.TemporaryFile('w+b') as fh:
-            self.download_file(path, fh)
-            fh.seek(0)
-            return json.loads(fh.read().decode())
 
