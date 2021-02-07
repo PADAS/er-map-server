@@ -79,7 +79,7 @@ def subject():
 
 
 #https://<>/api/v1.0/subject/3df5a521-f493-40df-a26e-ee70a0019300/tracks?since=2019-05-06
-@app.route('/api/v1.0/subject/<uuid:subject_id>/tracks', methods=['GET'])
+@app.route('/api/v1.0/subject/<string:subject_id>/tracks', methods=['GET'])
 @login_required
 def subject_tracks(subject_id):
   subject = subject_storage.get_subject(subject_id)
