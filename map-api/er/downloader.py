@@ -26,14 +26,17 @@ class SubjectDownloader:
 
     def download_subjects_and_tracks(self):
         subjects = self.client.get_subjects()
+        new_subjects = {"data": []}
 
-        keep_keys = ['id', 'subject_type', 'subject_subtype', 'image_url', 'name', 'last_position']
+        # save if tracks are available?
+        keep_keys = ['id', 'name', 'sex', 'subject_type', 'subject_subtype', 'image_url', 'last_position']
 
         for subject in subjects:
             subject = {k:v for k,v in subject.items() if k in keep_keys}
+            new_subjects["data"].append(subject)
             self.download_track(subject)
 
-        self.storage.save_subjects(self.fixup_host(subjects))
+        self.storage.save_subjects(self.fixup_host(new_subjects))
 
     def download_track(self, subject):
         track = self.client.get_subject_tracks(subject['id'], start=self.since)
