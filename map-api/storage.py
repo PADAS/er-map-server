@@ -2,6 +2,8 @@ import logging
 import json
 import tempfile
 import mimetypes
+import urllib.request
+import os
 from pathlib import Path
 
 import boto3
@@ -58,6 +60,15 @@ class LocalStorage:
         path = self.subjects_dir / subject["id"] / "tracks.json"
         self.save_obj_to_file(path, track)
 
+    def save_subject_image(self, subject):
+        path = Path(os.path.dirname(self.subjects_dir) + "/" + subject["image_url"])
+
+        # makes a directory and saves svg image if not already been saved before
+        if not os.path.exists(path) :
+            url = "https://sandbox.pamdas.org" + subject["image_url"]
+            response = urllib.request.urlopen(url)
+            urllib.request.urlretrieve(url, path)
+
     def get_static_image(self, fh, image_name, folder=None):
         if not folder:
             folder = self.static_dir
@@ -66,7 +77,8 @@ class LocalStorage:
         path = folder / image_name
 
         # here we need to load the image file into the fh
-        self.get_obj_from_file(path, fh)
+        with open(path, "rb") as source_fh:
+            fh.write(source_fh.read())
         return mimetype
 
     def get_static_image_redirect(self, image_name, folder=None):

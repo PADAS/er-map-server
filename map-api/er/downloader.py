@@ -35,6 +35,7 @@ class SubjectDownloader:
             subject = {k:v for k,v in subject.items() if k in keep_keys}
             new_subjects["data"].append(subject)
             self.download_track(subject)
+            self.storage.save_subject_image(subject)
 
         self.storage.save_subjects(self.fixup_host(new_subjects))
 
