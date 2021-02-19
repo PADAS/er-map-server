@@ -61,13 +61,15 @@ class LocalStorage:
         self.save_obj_to_file(path, track)
 
     def save_subject_image(self, subject):
-        png_file = subject["image_url"].replace(".svg", ".png")
-        #path = Path(os.path.dirname(self.subjects_dir) + "/" + subject["image_url"])
-        path = Path(os.path.dirname(self.subjects_dir) + "/" + png_file)
+        #png_file = subject["image_url"].replace(".svg", ".png")
+        path = Path(os.path.dirname(self.subjects_dir) + "/" + subject["image_url"]) #to save as svg
+        #path = Path(os.path.dirname(self.subjects_dir) + "/" + png_file)
 
         # makes a directory and saves svg image if not already been saved before
         if not os.path.exists(path) :
-            url = "https://sandbox.pamdas.org" + subject["image_url"]
+            svg_url = subject["image_url"].replace(".png", ".svg")
+            url = "https://sandbox.pamdas.org" + svg_url
+            #url = "https://sandbox.pamdas.org" + subject["image_url"]
             response = urllib.request.urlopen(url)
             urllib.request.urlretrieve(url, path)
 
@@ -76,9 +78,9 @@ class LocalStorage:
             folder = self.static_dir
         mimetype = mimetypes.guess_type(image_name)[0]
 
-        png_image_name = image_name.replace(".svg", ".png")
-        #path = folder / image_name
-        path = folder / png_image_name
+        #png_image_name = image_name.replace(".svg", ".png")
+        path = folder / image_name # to get as an svg file
+        #path = folder / png_image_name
 
         # here we need to load the image file into the fh
         with open(path, "rb") as source_fh:

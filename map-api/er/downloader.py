@@ -34,9 +34,10 @@ class SubjectDownloader:
         for subject in subjects:
             subject = {k:v for k,v in subject.items() if k in keep_keys}
             new_subjects["data"].append(subject)
+            subject["last_position"]["properties"]["image"] = subject["last_position"]["properties"]["image"].replace(".svg", ".png")
+            subject["image_url"] = subject["image_url"].replace(".svg", ".png")
             self.download_track(subject)
             self.storage.save_subject_image(subject)
-
         self.storage.save_subjects(self.fixup_host(new_subjects))
 
     def download_track(self, subject):
