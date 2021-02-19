@@ -67,9 +67,9 @@ class LocalStorage:
 
         # makes a directory and saves svg image if not already been saved before
         if not os.path.exists(path) :
-            svg_url = subject["image_url"].replace(".png", ".svg")
-            url = "https://sandbox.pamdas.org" + svg_url
-            #url = "https://sandbox.pamdas.org" + subject["image_url"]
+            #svg_url = subject["image_url"].replace(".png", ".svg")
+            #url = "https://sandbox.pamdas.org" + svg_url
+            url = "https://sandbox.pamdas.org" + subject["image_url"]
             response = urllib.request.urlopen(url)
             urllib.request.urlretrieve(url, path)
 
