@@ -61,7 +61,9 @@ class LocalStorage:
         self.save_obj_to_file(path, track)
 
     def save_subject_image(self, subject):
-        path = Path(os.path.dirname(self.subjects_dir) + "/" + subject["image_url"])
+        png_file = subject["image_url"].replace(".svg", ".png")
+        #path = Path(os.path.dirname(self.subjects_dir) + "/" + subject["image_url"])
+        path = Path(os.path.dirname(self.subjects_dir) + "/" + png_file)
 
         # makes a directory and saves svg image if not already been saved before
         if not os.path.exists(path) :
@@ -74,7 +76,9 @@ class LocalStorage:
             folder = self.static_dir
         mimetype = mimetypes.guess_type(image_name)[0]
 
-        path = folder / image_name
+        png_image_name = image_name.replace(".svg", ".png")
+        #path = folder / image_name
+        path = folder / png_image_name
 
         # here we need to load the image file into the fh
         with open(path, "rb") as source_fh:
