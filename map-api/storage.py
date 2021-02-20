@@ -4,6 +4,8 @@ import tempfile
 import mimetypes
 import urllib.request
 import os
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPM
 from pathlib import Path
 
 import boto3
@@ -62,25 +64,27 @@ class LocalStorage:
 
     def save_subject_image(self, subject):
         #png_file = subject["image_url"].replace(".svg", ".png")
-        path = Path(os.path.dirname(self.subjects_dir) + "/" + subject["image_url"]) #to save as svg
         #path = Path(os.path.dirname(self.subjects_dir) + "/" + png_file)
+        svg_path = Path(os.path.dirname(self.subjects_dir) + "/" + subject["image_url"].replace(".png", ".svg"))
+        path = Path(os.path.dirname(self.subjects_dir) + "/" + subject["image_url"]) #to save as svg
 
         # makes a directory and saves svg image if not already been saved before
         if not os.path.exists(path) :
-            #svg_url = subject["image_url"].replace(".png", ".svg")
-            #url = "https://sandbox.pamdas.org" + svg_url
-            url = "https://sandbox.pamdas.org" + subject["image_url"]
-            response = urllib.request.urlopen(url)
-            urllib.request.urlretrieve(url, path)
+            svg_url = subject["image_url"].replace(".png", ".svg")
+            url = "https://sandbox.pamdas.org" + svg_url
+            #url = "https://sandbox.pamdas.org" + subject["image_url"] #for svg json response
+            #response = urllib.request.urlopen(url) #is this needed??
+            urllib.request.urlretrieve(url, svg_path)
+            drawing = svg2rlg(os.path.dirname(self.subjects_dir) + "/" + subject["image_url"].replace(".png", ".svg"))
+            renderPM.drawToFile(drawing, path, fmt="PNG")
+            os.remove(svg_path)
 
     def get_static_image(self, fh, image_name, folder=None):
         if not folder:
             folder = self.static_dir
         mimetype = mimetypes.guess_type(image_name)[0]
 
-        #png_image_name = image_name.replace(".svg", ".png")
-        path = folder / image_name # to get as an svg file
-        #path = folder / png_image_name
+        path = folder / image_name
 
         # here we need to load the image file into the fh
         with open(path, "rb") as source_fh:
