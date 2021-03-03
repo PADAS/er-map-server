@@ -29,7 +29,7 @@ class SubjectDownloader:
         new_subjects = {"data": []}
 
         # save if tracks are available?
-        keep_keys = ['id', 'name', 'sex', 'subject_type', 'subject_subtype', 'image_url', 'last_position']
+        keep_keys = ['id', 'name', 'sex', 'subject_type', 'subject_subtype', 'image_url', 'last_position', 'common_name']
 
         for subject in subjects:
             subject = {k:v for k,v in subject.items() if k in keep_keys}
