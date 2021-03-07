@@ -18,6 +18,9 @@ sys.path.append(parent_path)
 
 
 app = Flask(__name__)
+#app.config['CORS_HEADERS'] = 'Content-Type'
+
+#cors = CORS(app, resources={r"/api/v1.0/subjects": {"origins": "http://localhost:3000"}})
 
 
 def wrap_with_status(data):
@@ -64,11 +67,13 @@ def login():
 
 #https://<>/api/v1.0/subjects?bbox=33.484954833984375,-2.5562194448989453,35.40893554687499,-1.5420196224821954
 @app.route('/api/v1.0/subjects', methods=['GET'])
+#@cross_origin(origin='localhost',headers=['Content- Type', 'Authorization'])
 @login_required
 def subjects():
     subjects = subject_storage.get_subjects()
     response = jsonify(wrap_with_status(subjects))
-    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    #response.headers["Access-Control-Allow-Origin"] = "*"
     #return jsonify(wrap_with_status(subjects))
     return response
 
@@ -99,7 +104,7 @@ def static_image(image_name):
     response = send_file(fh, mimetype=mimetype)
     response.headers["Access-Control-Allow-Origin"] = "*"
     #return send_file(fh, mimetype=mimetype)
-    return responses
+    return response
 
 @app.route('/media/<string:image_name>', methods=['GET'])
 def static_media(image_name):
