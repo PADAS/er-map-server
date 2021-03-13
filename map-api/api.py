@@ -73,7 +73,6 @@ def subjects():
     subjects = subject_storage.get_subjects()
     response = jsonify(wrap_with_status(subjects))
     response.headers.add('Access-Control-Allow-Origin', '*')
-    #response.headers["Access-Control-Allow-Origin"] = "*"
     #return jsonify(wrap_with_status(subjects))
     return response
 
