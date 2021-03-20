@@ -4,6 +4,11 @@ import tempfile
 import logging
 
 from flask import Flask, jsonify, send_file, redirect
+from werkzeug.exceptions import NotFound
+parent_path = pathlib.Path(__file__).parent
+sys.path.append('/var/task/map-api/')
+sys.path.append(parent_path)
+
 import settings
 import storage
 from authentication import login_required, login_implementation
@@ -11,10 +16,7 @@ from authentication import login_required, login_implementation
 if not (settings.FRAMEWORK and settings.FRAMEWORK == 'Zappa'):
     logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-parent_path = pathlib.Path(__file__).parent
-logger.info(f'api.py parent path {parent_path}')
-sys.path.append('/var/task/map-api/')
-sys.path.append(parent_path)
+
 
 
 app = Flask(__name__)
@@ -77,11 +79,20 @@ def subjects():
     return response
 
 
-#https://<>/api/v1.0/subject/3df5a521-f493-40df-a26e-ee70a0019300/tracks?since=2019-05-06
+#https://<>/api/v1.0/subject/3df5a521-f493-40df-a26e-ee70a0019300
 @app.route('/api/v1.0/subject/<uuid:subject_id>',methods=['GET'])
 @login_required
-def subject():
-    raise NotImplementedError()
+def subject(subject_id):
+    subjects = subject_storage.get_subjects()
+    subject_id = str(subject_id)
+    try:
+        subject = next(s for s in subjects['data'] if s['id'] == subject_id)
+    except StopIteration:
+        raise NotFound(f"Subject {subject_id}")
+
+    response = jsonify(wrap_with_status(subject))
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 #https://<>/api/v1.0/subject/3df5a521-f493-40df-a26e-ee70a0019300/tracks?since=2019-05-06

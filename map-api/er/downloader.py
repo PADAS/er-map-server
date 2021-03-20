@@ -35,11 +35,13 @@ class SubjectDownloader:
         for subject in subjects:
             subject = {k:v for k,v in subject.items() if k in keep_keys}
             new_subjects["data"].append(subject)
-            subject["last_position"]["properties"]["image"] = subject["last_position"]["properties"]["image"].replace(".svg", ".png")
+            if subject.get("tracks_available", "false") == "true":
+                subject["last_position"]["properties"]["image"] = subject["last_position"]["properties"]["image"].replace(".svg", ".png")
             subject["image_url"] = subject["image_url"].replace(".svg", ".png")
             subject["color"] = '#{:02x}{:02x}{:02x}'.format(*map(lambda x: random.randint(0, 255), range(3)))
             self.download_track(subject)
             self.storage.save_subject_image(subject)
+
         self.storage.save_subjects(self.fixup_host(new_subjects))
 
     def download_track(self, subject):

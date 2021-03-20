@@ -4,6 +4,7 @@ import tempfile
 import mimetypes
 import urllib.request
 import os
+from io import BytesIO
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPM
 from pathlib import Path
@@ -146,6 +147,20 @@ class S3Storage:
         track_path = f'{self.subjects_dir}/{subject["id"]}/tracks.json'
         self.save_obj_to_file(track_path, track)
 
+    def save_subject_image(self, subject):
+        svg_url = subject["image_url"].replace(".png", ".svg")
+        url = "https://sandbox.pamdas.org" + svg_url
+
+        svg_path, headers = urllib.request.urlretrieve(url)
+        drawing = svg2rlg(svg_path)
+        png = BytesIO()
+        renderPM.drawToFile(drawing, png, fmt="PNG")
+        png.seek(0)
+        path = subject["image_url"]
+        image_name = Path(path).name
+        bucket_path = f'{self.static_dir}/{image_name}'
+        self.upload_file(png, bucket_path)
+        
     def get_static_image(self, fh, image_name, folder=None):
         if not folder:
             folder = self.static_dir

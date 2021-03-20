@@ -64,3 +64,14 @@ zappa update <configname>
 ~~~~
 zappa undeploy <configname>
 ~~~~
+
+
+### Certificates
+For a production pipeline we want to leverage Zappa's and AWS's support for SSL and an SSL certificate. There are some entries in the Zappa config that we use along with setup in AWS.
+
+1. Create a certificate for the hostname you plan to use with this Map Server. For example "ermap-server-sandbox.pamdas.org"
+2. record the ARN and name, updating the zappa_settings.json config section.
+3. once done, we use the zappa certify command to configure the certificate with our lambda
+~~~
+zappa certify <configname>
+~~~
