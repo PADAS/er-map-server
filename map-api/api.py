@@ -4,6 +4,7 @@ import tempfile
 import logging
 
 from flask import Flask, jsonify, send_file, redirect
+from flask_cors import CORS
 from werkzeug.exceptions import NotFound
 parent_path = pathlib.Path(__file__).parent
 sys.path.append('/var/task/map-api/')
@@ -18,11 +19,14 @@ if not (settings.FRAMEWORK and settings.FRAMEWORK == 'Zappa'):
 logger = logging.getLogger(__name__)
 
 
-
 app = Flask(__name__)
-#app.config['CORS_HEADERS'] = 'Content-Type'
 
-#cors = CORS(app, resources={r"/api/v1.0/subjects": {"origins": "http://localhost:3000"}})
+resources=[
+    {r"/api/v1.0/subjects": {"origins": ["http://localhost:3000", "https://ermap-sandbox.pamdas.org"]}},
+    {r"/static": {"origins": ["http://localhost:3000", "https://ermap-sandbox.pamdas.org"]}}
+]
+
+cors = CORS(app, resources=resources)
 
 
 def wrap_with_status(data):
@@ -69,7 +73,6 @@ def login():
 
 #https://<>/api/v1.0/subjects?bbox=33.484954833984375,-2.5562194448989453,35.40893554687499,-1.5420196224821954
 @app.route('/api/v1.0/subjects', methods=['GET'])
-#@cross_origin(origin='localhost',headers=['Content- Type', 'Authorization'])
 @login_required
 def subjects():
     subjects = subject_storage.get_subjects()
@@ -127,11 +130,6 @@ def static_config(name):
     mimetype = subject_storage.get_static_image(fh, name, "config")
     fh.seek(0)
     return send_file(fh, mimetype=mimetype)
-
-
-
-#ICON <optional, since I will hardcode these for the demo>
-#https://<>/static/elephant-black-male.svg
 
 if __name__ == "__main__":
     app.run()
