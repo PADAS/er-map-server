@@ -1,5 +1,17 @@
+from typing import NamedTuple
 import json
+import base64
 from os import environ
+
+
+class ERSite(NamedTuple):
+    host: str
+    token: str
+    
+class PublicSite(NamedTuple):
+    name: str
+    er_sites: list
+    
 
 
 SERVER_TYPE = environ.get('SERVERTYPE')
@@ -16,8 +28,31 @@ else:
 
 SUBJECTS_BUCKET = environ.get('SUBJECTS_BUCKET')
 AWS_REGION = environ.get('AWS_REGION')
-ER_TOKEN = environ.get('ER_TOKEN')
-ER_HOST = environ.get('ER_HOST')
+
+ER_TOKEN = environ.get('ER_TOKEN', '')
+ER_HOST = environ.get('ER_HOST', '')
+ER_PUBLIC_NAME = environ.get('ER_PUBLIC_NAME', '')
+
+ER_HOST_CONFIG = environ.get('ER_HOST_CONFIG', '')
 SERVER_URL = environ.get('SERVER_URL', 'http://localhost')
-LOGIN_TOKEN = environ.get('LOGIN_TOKEN')
+LOGIN_TOKEN = environ.get('LOGIN_TOKEN', '')
 SUBJECTS_FOLDER = environ.get("SUBJECTS_FOLDER")
+
+PUBLIC_SITES = {}
+
+def load_settings():
+    if not ER_HOST_CONFIG:
+        er_site = ERSite(ER_HOST, ER_TOKEN)
+        PUBLIC_SITES[ER_PUBLIC_NAME] = PublicSite(ER_PUBLIC_NAME, [er_site,])
+        return
+    
+    host_config = base64.b64decode(ER_HOST_CONFIG)
+    host_config = json.loads(host_config)
+
+    for name, sites in host_config.items():
+        er_sites = []
+        for site in sites:
+            er_sites.append(ERSite(site['er_host'], site['er_token']))
+        PUBLIC_SITES[name] = PublicSite(name, er_sites)
+
+load_settings()

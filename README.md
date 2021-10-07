@@ -3,6 +3,14 @@ Python based flask application for hosting track data for the ER embeddable map
 
 Using Zappa for deployment.
 
+## Setup ER Api Account
+Here we setup a user that the ER Map Server uses to get approved subject data
+1. Create OAuth Application called "ER Public Map"
+2. Create User "ER Public Map API" with username "erpublicmapapi"
+3. Assign Permission set that has access to the subject groups granted to the Public Map
+4. Create authtoken, assign "ER Public Map" app and user "ER Public Map API"
+5. We use this authtoken below in the ER Map Server config.
+
 ## Zappa Setting
 The primary settings are configured the the following environment variables
 ~~~
@@ -21,7 +29,7 @@ Follow the instructions in Zappa docs on settting up AWS certificate. The certif
 ## Setup for development
 1. create a virtual environment on the deployment machine. From the root of this project execute the following commands
 ~~~~
-python3.7 -m venv .venv
+python3.8 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ~~~~

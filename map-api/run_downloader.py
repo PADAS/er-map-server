@@ -4,9 +4,11 @@ import storage
 
 
 def main():
-    subject_storage = storage.get_storage(settings)
-    downloader = er.downloader.SubjectDownloader(settings.ER_TOKEN, settings.ER_HOST, subject_storage, settings.SERVER_URL)
-    downloader.download_subjects_and_tracks()
+    for name, public_site in settings.PUBLIC_SITES.items():
+        subject_storage = storage.get_storage(settings, public_site)
+        for er_site in public_site.er_sites:
+            downloader = er.downloader.SubjectDownloader(er_site.token, er_site.host, subject_storage, settings.SERVER_URL, public_site.name)
+            downloader.download_subjects_and_tracks()
 
 
 if __name__ == "__main__":

@@ -7,10 +7,11 @@ import dasclient.dasclient
 DEFAULT_DAYS = 16
 
 class SubjectDownloader:
-    def __init__(self, token, host, storage, api_host=None, since=None):
+    def __init__(self, token, host, storage, api_host=None, public_name=None, since=None):
         self.token = token
         self.host = host
         self.api_host = api_host
+        self.public_name = public_name
         service_root = self.host + '/api/v1.0'
         self.client = dasclient.dasclient.DasClient(token=token, service_root=service_root)
         self.storage = storage
@@ -21,7 +22,7 @@ class SubjectDownloader:
     def fixup_host(self, obj):
         if self.api_host:
             data = json.dumps(obj)
-            data = data.replace(self.host, self.api_host)
+            data = data.replace(self.host, self.api_host + f"/{self.public_name}")
             obj = json.loads(data)
         return obj
 
@@ -33,7 +34,7 @@ class SubjectDownloader:
         keep_keys = ['id', 'name', 'sex', 'subject_type', 'subject_subtype', 'image_url', 'last_position', 'common_name']
 
         for subject in subjects:
-            if (subject["tracks_available"] == true):
+            if (subject["tracks_available"] == True):
                 subject = {k:v for k,v in subject.items() if k in keep_keys}
                 new_subjects["data"].append(subject)
                 if subject.get("last_position") and subject["last_position"].get("properties"):

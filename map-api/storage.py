@@ -15,11 +15,12 @@ import boto3
 logger = logging.getLogger(__name__)
 
 
-def get_storage(settings):
+def get_storage(settings, public_site):
     if getattr(settings, "SUBJECTS_BUCKET", None):
-        return S3Storage(getattr(settings, "SUBJECTS_BUCKET"), getattr(settings, "AWS_REGION"))
+        return S3Storage(getattr(settings, "SUBJECTS_BUCKET"), getattr(settings, "AWS_REGION"), public_site.name)
     elif getattr(settings, "SUBJECTS_FOLDER", None):
-        return LocalStorage(getattr(settings, "SUBJECTS_FOLDER"))
+        folder = Path(getattr(settings, "SUBJECTS_FOLDER")) / public_site.name
+        return LocalStorage(folder)
     raise NotImplementedError("No storage type found")
 
 
@@ -96,11 +97,13 @@ class LocalStorage:
         raise NotImplementedError()
 
 class S3Storage:
-    def __init__(self, bucket, region):
+    def __init__(self, bucket, region, folder):
         self.bucket_name = bucket
-        self.subjects_dir = 'subjects'
-        self.static_dir = 'static'
-        self.users_dir = 'users'
+        self.folder = folder
+        self.subjects_dir = folder + '/subjects'
+        self.static_dir = folder + '/static'
+        self.users_dir = folder + '/users'
+        
 
         self.session = boto3.Session(region_name=region)
         self.s3_session = self.session.resource('s3')
