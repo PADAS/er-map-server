@@ -121,7 +121,11 @@ def subject_tracks(public_name, subject_id):
 @app.route('/<string:public_name>/static/<string:image_name>', methods=['GET'])
 def static_image(public_name, image_name):
     fh = tempfile.TemporaryFile('w+b')
-    mimetype = subject_storages[public_name].get_static_image(fh, image_name)
+    try:
+        mimetype = subject_storages[public_name].get_static_image(fh, image_name)
+    except:
+        raise NotFound(f"Image: {image_name}")
+
     fh.seek(0)
     response = send_file(fh, mimetype=mimetype)
     response.headers["Access-Control-Allow-Origin"] = "*"

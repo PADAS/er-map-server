@@ -10,7 +10,7 @@ from reportlab.graphics import renderPM
 from pathlib import Path
 
 import boto3
-
+from botocore.errorfactory import ClientError
 
 logger = logging.getLogger(__name__)
 
@@ -65,21 +65,19 @@ class LocalStorage:
         self.save_obj_to_file(path, track)
 
     def save_subject_image(self, subject):
-        #png_file = subject["image_url"].replace(".svg", ".png")
-        #path = Path(os.path.dirname(self.subjects_dir) + "/" + png_file)
-        svg_path = Path(os.path.dirname(self.subjects_dir) + "/" + subject["image_url"].replace(".png", ".svg"))
-        path = Path(os.path.dirname(self.subjects_dir) + "/" + subject["image_url"]) #to save as svg
+        
+        path = Path(os.path.dirname(self.subjects_dir) + subject["image_url"])
 
         # makes a directory and saves svg image if not already been saved before
         if not os.path.exists(path) :
-            svg_url = subject["image_url"].replace(".png", ".svg")
+            svg_url = subject["image_url"]
             url = "https://sandbox.pamdas.org" + svg_url
             #url = "https://sandbox.pamdas.org" + subject["image_url"] #for svg json response
             #response = urllib.request.urlopen(url) #is this needed??
-            urllib.request.urlretrieve(url, svg_path)
-            drawing = svg2rlg(os.path.dirname(self.subjects_dir) + "/" + subject["image_url"].replace(".png", ".svg"))
-            renderPM.drawToFile(drawing, path, fmt="PNG")
-            os.remove(svg_path)
+            urllib.request.urlretrieve(url, path)
+            #drawing = svg2rlg(os.path.dirname(self.subjects_dir) + "/" + subject["image_url"].replace(".png", ".svg"))
+            #renderPM.drawToFile(drawing, path, fmt="PNG")
+            #os.remove(svg_path)
 
     def get_static_image(self, fh, image_name, folder=None):
         if not folder:
@@ -151,18 +149,16 @@ class S3Storage:
         self.save_obj_to_file(track_path, track)
 
     def save_subject_image(self, subject):
-        svg_url = subject["image_url"].replace(".png", ".svg")
+        svg_url = subject["image_url"]
         url = "https://sandbox.pamdas.org" + svg_url
 
         svg_path, headers = urllib.request.urlretrieve(url)
-        drawing = svg2rlg(svg_path)
-        png = BytesIO()
-        renderPM.drawToFile(drawing, png, fmt="PNG")
-        png.seek(0)
+        
         path = subject["image_url"]
         image_name = Path(path).name
         bucket_path = f'{self.static_dir}/{image_name}'
-        self.upload_file(png, bucket_path)
+        with open(svg_path, 'rb') as fh:
+            self.upload_file(fh, bucket_path)
         
     def get_static_image(self, fh, image_name, folder=None):
         if not folder:
