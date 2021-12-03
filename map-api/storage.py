@@ -4,9 +4,6 @@ import tempfile
 import mimetypes
 import urllib.request
 import os
-from io import BytesIO
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderPM
 from pathlib import Path
 
 import boto3
