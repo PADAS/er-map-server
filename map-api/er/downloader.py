@@ -2,7 +2,7 @@ import json
 import datetime
 import random
 
-import dasclient.dasclient
+from erclient import ERClient
 
 DEFAULT_DAYS = 16
 
@@ -13,7 +13,7 @@ class SubjectDownloader:
         self.api_host = api_host
         self.public_name = public_name
         service_root = self.host + '/api/v1.0'
-        self.client = dasclient.dasclient.DasClient(token=token, service_root=service_root)
+        self.client = ERClient(token=token, service_root=service_root)
         self.storage = storage
         self.since = since
         if not since:
@@ -28,6 +28,7 @@ class SubjectDownloader:
 
     def download_subjects_and_tracks(self):
         subjects = self.client.get_subjects()
+
         new_subjects = {"data": []}
 
         # save if tracks are available?

@@ -7,6 +7,7 @@ from os import environ
 class ERSite(NamedTuple):
     host: str
     token: str
+    show_track_days: int
     
 class PublicSite(NamedTuple):
     name: str
@@ -37,12 +38,13 @@ ER_HOST_CONFIG = environ.get('ER_HOST_CONFIG', '')
 SERVER_URL = environ.get('SERVER_URL', 'http://localhost')
 LOGIN_TOKEN = environ.get('LOGIN_TOKEN', '')
 SUBJECTS_FOLDER = environ.get("SUBJECTS_FOLDER")
+SHOW_TRACK_DAYS = 30
 
 PUBLIC_SITES = {}
 
 def load_settings():
     if not ER_HOST_CONFIG:
-        er_site = ERSite(ER_HOST, ER_TOKEN)
+        er_site = ERSite(ER_HOST, ER_TOKEN, SHOW_TRACK_DAYS)
         PUBLIC_SITES[ER_PUBLIC_NAME] = PublicSite(ER_PUBLIC_NAME, [er_site,])
         return
     
@@ -52,7 +54,8 @@ def load_settings():
     for name, sites in host_config.items():
         er_sites = []
         for site in sites:
-            er_sites.append(ERSite(site['er_host'], site['er_token']))
+            show_track_days = site.get("show_track_days", SHOW_TRACK_DAYS)
+            er_sites.append(ERSite(site['er_host'], site['er_token'], show_track_days))
         PUBLIC_SITES[name] = PublicSite(name, er_sites)
 
 load_settings()
