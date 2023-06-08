@@ -5,9 +5,9 @@ Using Zappa for deployment.
 
 ## Setup ER Api Account
 Here we setup a user that the ER Map Server uses to get approved subject data
-1. Create OAuth Application called "ER Public Map"
+1. Create OAuth Application called "ER Public Map" with client id "er-public-map", confidential: client credentials
 2. Create User "ER Public Map API" with username "erpublicmapapi"
-3. Assign Permission set that has access to the subject groups granted to the Public Map
+3. Assign Permission set that has access to the subject groups granted to the Public Map. "ER Public Map"
 4. Create authtoken, assign "ER Public Map" app and user "ER Public Map API"
 5. We use this authtoken below in the ER Map Server config.
 
@@ -83,3 +83,12 @@ For a production pipeline we want to leverage Zappa's and AWS's support for SSL 
 ~~~
 zappa certify <configname>
 ~~~
+
+### Test deployment
+Our default deployment sets up the map server at https://ermap-server.pamdas.org
+
+To test a specific sites subject data, we plug in the sites name in the url
+
+```
+https://ermap-server.pamdas.org/easterisland/api/v1.0/subjects
+```

@@ -8,6 +8,7 @@ class ERSite(NamedTuple):
     host: str
     token: str
     show_track_days: int
+    delay_days: int
     
 class PublicSite(NamedTuple):
     name: str
@@ -39,12 +40,13 @@ SERVER_URL = environ.get('SERVER_URL', 'http://localhost')
 LOGIN_TOKEN = environ.get('LOGIN_TOKEN', '')
 SUBJECTS_FOLDER = environ.get("SUBJECTS_FOLDER")
 SHOW_TRACK_DAYS = 30
+DELAY_DAYS = 0
 
 PUBLIC_SITES = {}
 
 def load_settings():
     if not ER_HOST_CONFIG:
-        er_site = ERSite(ER_HOST, ER_TOKEN, SHOW_TRACK_DAYS)
+        er_site = ERSite(ER_HOST, ER_TOKEN, SHOW_TRACK_DAYS, DELAY_DAYS)
         PUBLIC_SITES[ER_PUBLIC_NAME] = PublicSite(ER_PUBLIC_NAME, [er_site,])
         return
     
@@ -55,7 +57,8 @@ def load_settings():
         er_sites = []
         for site in sites:
             show_track_days = site.get("show_track_days", SHOW_TRACK_DAYS)
-            er_sites.append(ERSite(site['er_host'], site['er_token'], show_track_days))
+            delay_days = site.get("delay_days", DELAY_DAYS)
+            er_sites.append(ERSite(site['er_host'], site['er_token'], show_track_days, delay_days))
         PUBLIC_SITES[name] = PublicSite(name, er_sites)
 
 load_settings()

@@ -2,7 +2,6 @@ flask
 flask-cors
 boto3
 pytz
-zappa
+zappa==0.54.1
 python-dateutil
-troposphere==2.7.0
-https://github.com/PADAS/er-client/releases/download/v1.0.40/er_client-1.0.40-py3-none-any.whl
+earthranger-client==1.0.44

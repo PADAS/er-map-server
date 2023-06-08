@@ -13,8 +13,11 @@ def main():
         subject_storage = storage.get_storage(settings, public_site)
         for er_site in public_site.er_sites:
             since = datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(days=er_site.show_track_days)
+            until = None
+            if er_site.delay_days:
+                until = datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(days=er_site.delay_days)
             downloader = er.downloader.SubjectDownloader(er_site.token, er_site.host,
-             subject_storage, settings.SERVER_URL, public_site.name, since)
+             subject_storage, settings.SERVER_URL, public_site.name, since, until)
             try:
                 downloader.download_subjects_and_tracks()
             except Exception as ex:
